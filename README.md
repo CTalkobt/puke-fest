@@ -14,6 +14,14 @@ fireworks bang. Paper bags catch a puke - and a full one can be thrown.
 One or two players (taking turns), a story between screens, a tune for each
 screen, high scores on the disk.
 
+## Download
+
+The latest release, with the disk image ready to run:
+<https://github.com/CTalkobt/puke-fest/releases/latest> (v1.0:
+<https://github.com/CTalkobt/puke-fest/releases/tag/v1.0>). Copy
+`pukefest.d81` to the MEGA65's SD card, mount it and run PUKEFEST - or in
+xemu: `xemu-xmega65 -8 pukefest.d81 -autoload`.
+
 ## Build and run
 
 Needs the M65Compiler tree next to this one (`../m65compiler`, or
