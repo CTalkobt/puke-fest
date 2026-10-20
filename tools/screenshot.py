@@ -3,7 +3,9 @@
 
 Usage: screenshot.py <prg> <png> [seconds] [disk image for drive 8]
 
-VIDEOSTD=1 in the environment runs it as NTSC (0: PAL).
+VIDEOSTD=1 in the environment runs it as NTSC (0: PAL). AUTOLOAD=1 boots
+the disk image instead (xemu -autoload: its first program is loaded and
+run, as make run does); the PRG is then only what to wait for in memory.
 
 Waits (through xemu's UART monitor socket) until the PRG's bytes are in
 memory, lets it run for the given number of seconds (default 8), then stops
@@ -65,7 +67,8 @@ def main():
     sockname = os.path.join(tmp, "umon")
     xemu = subprocess.Popen(
         [os.environ.get("XEMU", "xemu-xmega65"), "-headless", "-besure", "-fastboot",
-         "-prgmode", "65", "-uartmon", sockname, "-screenshot", png, "-prg", prg]
+         "-uartmon", sockname, "-screenshot", png]
+        + (["-autoload"] if os.environ.get("AUTOLOAD") else ["-prgmode", "65", "-prg", prg])
         + (["-8", disk] if disk else [])
         + (["-videostd", os.environ["VIDEOSTD"]] if os.environ.get("VIDEOSTD") else [])
         + (["-dumpmem", os.environ["DUMPMEM"]] if os.environ.get("DUMPMEM") else []),

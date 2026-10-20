@@ -189,7 +189,7 @@ unsigned char boot(void) {
 #endif
     return 1;
 missing:
-    k_text = "PFEST.OV1, PFGFX1-3 MISSING: RUN PFEST FROM ITS DISK\r";
+    k_text = "PUKEGFX1-3 MISSING: RUN PUKEFEST FROM ITS DISK\r";
     k_print();
     return 0;
 }

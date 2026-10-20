@@ -1,4 +1,4 @@
-# PFEST — design plan
+# Puke Fest — design plan
 
 An arcade game for the MEGA65, written in C with cc45 (ca45 for hot code),
 linked with ln45. Top-down, one or two players (taking turns). Priorities in order: playability,
@@ -73,8 +73,8 @@ puking, bonus for NPC pukes you dodged.
   the HUD, rows 1-48 the play area: 20 x 12 squares of 32 x 32 pixels (4 x 4
   characters each). The screen (8000 bytes) is in bank 5.
 - **Art and data on disk**, loaded at the start by the KERNAL
-  (`src/load.s45`; no C stdio): `PFGFX1`/`PFGFX2` (banks 4-5: tiles, the
-  stench frames, the player's, the kid's and the aunt's pictures), `PFGFX3`
+  (`src/load.s45`; no C stdio): `PUKEGFX1`/`PUKEGFX2` (banks 4-5: tiles, the
+  stench frames, the player's, the kid's and the aunt's pictures), `PUKEGFX3`
   (bank 1 at $12000, free while the game runs: the crowd's pictures, the
   samples, the maps, the logo's layout, the text pages). Bank 0 keeps the
   code and small tables.
@@ -145,7 +145,7 @@ tools/art.py          the art (shapes and ASCII; placeholder quality) and the lo
 assets/tiles/*.png    optional hand-drawn tiles: NAME.png, 32 x 32 (animated: frames side by side)
 assets/sprites/*.png  optional hand-drawn sprite sheets: player, crowd0-2, kid, aunt;
                       32 x 42 pictures side by side in art.py's frame order
-tools/gen_assets.py   packs it: build/assets.c/.h (tables), build/pfgfx.bin (art)
+tools/gen_assets.py   packs it: build/assets.c/.h (tables), build/pukegfx1-3.bin (art, data)
 tests/nausea_test.c   the nausea rules, stepped on the host (make test)
 tests/mux_test.c      the multiplexer's scheduler, on the host (make test)
 tools/screenshot.py   headless xemu run -> PNG
@@ -171,7 +171,7 @@ assets/text.txt       the title's text pages
   ca45 when C is not up to it.
 - Bank 0: the program ends at $AF00 (about 768 bytes free); nine copied
   code overlays (scores, front, boot, level, people, story, ai, turns,
-  options: 16.8 KB, kept at $59600 in bank 5, file PFEST.OV1) take turns
+  options: 16.8 KB, kept at $59600 in bank 5, file PUKEFEST.OV1) take turns
   in a 2.9 KB region at $B200, below a 512-byte stack. The music is in bank 1; the tune playing
   is copied into a buffer (TUNE_MAX). More code means more (or smaller)
   overlays: the region is as large as the largest. An overlay is one
@@ -194,7 +194,7 @@ unlocked explicitly after the art loads (the DOS locks them), 40 MHz is
 set (FAST + VFAST; the audio DMA needs it), the sprite Y origin comes from
 TEXTYPOS (PAL 104, NTSC 55), the music keeps its tempo at 60 Hz. To check:
 
-1. Loading: `PFEST`, `PFEST.OV1`, `PFGFX1-3` from the SD card's D81 (about
+1. Loading: `PUKEFEST`, `PUKEFEST.OV1`, `PUKEGFX1-3` from the SD card's D81 (about
    125 KB: several seconds).
 2. The title: the logo's drips run, the cast walks, the music plays.
 3. Play: sprites line up with the squares (both PAL and NTSC), no flicker

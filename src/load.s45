@@ -1,6 +1,6 @@
 ; load.s45 — loading the art and printing, straight through the KERNAL
 ;
-; The art is three files, PFGFX1 (bank 4), PFGFX2 (bank 5) and PFGFX3
+; The art is three files, PUKEGFX1 (bank 4), PUKEGFX2 (bank 5) and PUKEGFX3
 ; (bank 1), each starting with its load address in its bank; the KERNAL
 ; loads them where they say
 ; (SETBNK, SETNAM, SETLFS with secondary address 1, LOAD) from the drive the
@@ -31,11 +31,11 @@ _k_len:   .byte 0         ;   its length,
 _k_addr:  .word 0         ;   where in bank 0,
 _k_end:   .word 0         ;   and (saving) one past the end
 SAVEPTR = $FB             ; SAVE's start address: in base page 0, the ROM's
-name:     .byte $50, $46, $47, $46, $58, $31   ; "PFGFX1"
-NAME_LEN = 6
+name:     .byte $50, $55, $4B, $45, $47, $46, $58, $31   ; "PUKEGFX1"
+NAME_LEN = 8
 
 .data
-banks:    .byte 4, 5, 1   ; PFGFX1, 2, 3 (at $12000)
+banks:    .byte 4, 5, 1   ; PUKEGFX1, 2, 3 (at $12000)
 _gfx_first: .byte 0       ; gfx_load: the files from gfx_first
 _gfx_last:  .byte 3       ;   up to (not including) gfx_last
 

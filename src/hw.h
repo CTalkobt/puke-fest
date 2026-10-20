@@ -10,12 +10,12 @@
 
 #define COLOR_LIN  0xFF80000UL       /* colour RAM: 2 bytes a cell */
 #define RTC_LIN    0xFFD7110UL       /* the real-time clock: BCD seconds, minutes, hours, day, month, year */
-#define GFX_LIN    0x0040000UL       /* pfgfx.bin from disk (bank 4): see assets.h */
+#define GFX_LIN    0x0040000UL       /* pukegfx1-2.bin from disk (banks 4-5): see assets.h */
 #define TILE_LIN   (GFX_LIN + GFX_TILES)
 #define TILE_CHAR  (unsigned int)(TILE_LIN / 64)
 #define ANIM_LIN   (GFX_LIN + GFX_ANIM)
 #define SPR_LIN    (GFX_LIN + GFX_SPRITES)
-#define DATA_LIN   0x0012000UL       /* pfgfx3.bin (bank 1, free while the game runs): see assets.h */
+#define DATA_LIN   0x0012000UL       /* pukegfx3.bin (bank 1, free while the game runs): see assets.h */
 #define DATA_SPR_LIN (DATA_LIN + DATA_SPRITES)
 #define SCREEN_LIN 0x005E000UL       /* the screen: 80 x 50 16-bit cells (top of bank 5; the art ends below) */
 

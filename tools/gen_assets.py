@@ -6,7 +6,7 @@ Usage: gen_assets.py <build dir> <map.txt>...
 Writes
 - <build>/assets.h, assets.c: the tables the program keeps in bank 0 (tile
   attributes, palettes, the maps)
-- <build>/pfgfx1.bin, pfgfx2.bin: the art, loaded from disk at the start
+- <build>/pukegfx1.bin, pukegfx2.bin: the art, loaded from disk at the start
   to GFX_LIN (bank 4) and on into bank 5: the tiles' FCM characters, the
   stench frames, the sprite images (see the GFX_ offsets in assets.h).
   Each starts with its load address in its bank ($0000)
@@ -95,8 +95,8 @@ for c, floor in (('d', 'ASPHALT'), ('e', 'RIDE'), ('f', 'CHECKER'), ('g', 'BRIDG
 # who starts where: the crowd (c on grass, C on the path), the Hugging Aunt,
 # the cotton-candy kid (src/npc.h NPC_ types)
 NPC_CHARS = {'c': 0, 'C': 0, 'k': 1, 'a': 2, 'd': 0, 'e': 0, 'f': 0, 'g': 0}
-GFX_MAX = 0x19600              # pfgfx1/2.bin end below the code overlays ($59600, Makefile) and the screen
-DATA_MAX = 0xD800              # pfgfx3.bin: $12000-$1F7FF of bank 1 (hw.h: DATA_LIN)
+GFX_MAX = 0x19600              # pukegfx1/2.bin end below the code overlays ($59600, Makefile) and the screen
+DATA_MAX = 0xD800              # pukegfx3.bin: $12000-$1F7FF of bank 1 (hw.h: DATA_LIN)
 GFX_LIN, DATA_LIN = 0x40000, 0x12000   # (hw.h)
 
 
@@ -373,7 +373,7 @@ def main():
     if len(gfx) > GFX_MAX:
         sys.exit("the art is %d bytes: more than the %d below the screen" % (len(gfx), GFX_MAX))
     for i, part in enumerate((gfx[:0x10000], gfx[0x10000:])):
-        with open(os.path.join(out, "pfgfx%d.bin" % (i + 1)), "wb") as f:
+        with open(os.path.join(out, "pukegfx%d.bin" % (i + 1)), "wb") as f:
             f.write(bytes([0, 0] + part))
 
     # the data (bank 1, DATA_LIN): the crowd's pictures, the samples, the
@@ -402,7 +402,7 @@ def main():
     data += list(open(os.path.join(out, 'music.bin'), 'rb').read())   # (tools/gen_music.py)
     if len(data) > DATA_MAX:
         sys.exit("the data is %d bytes: more than the %d in bank 1" % (len(data), DATA_MAX))
-    with open(os.path.join(out, "pfgfx3.bin"), "wb") as f:
+    with open(os.path.join(out, "pukegfx3.bin"), "wb") as f:
         f.write(bytes([0x00, 0x20] + data))                     # to $2000 in bank 1
 
     with open(os.path.join(out, "assets.h"), "w") as f:
@@ -414,11 +414,11 @@ def main():
                      ('A_ALE', A_ALE), ('A_GATE', A_GATE), ('A_EXIT', A_EXIT), ('A_PUKE', A_PUKE)]:
             f.write("#define %s 0x%02X\n" % (n, v))
         f.write("#define NO_TILE 0xFF\n\n")
-        f.write("/* the art (pfgfx1.bin, pfgfx2.bin), loaded to GFX_LIN: offsets */\n")
+        f.write("/* the art (pukegfx1.bin, pukegfx2.bin), loaded to GFX_LIN: offsets */\n")
         f.write("#define GFX_TILES 0x%04XUL\n#define GFX_ANIM 0x%04XUL\n#define GFX_SPRITES 0x%04XUL\n#define GFX_SIZE 0x%04XUL\n"
                 % (0, len(tiles), len(tiles) + len(anim), len(gfx)))
         f.write("#define SPR_SLOT %d\n\n" % SPR_SLOT)
-        f.write("/* the data (pfgfx3.bin), loaded to DATA_LIN: the crowd's pictures from 0 (DATA_SPRITES),\n"
+        f.write("/* the data (pukegfx3.bin), loaded to DATA_LIN: the crowd's pictures from 0 (DATA_SPRITES),\n"
                 " * the samples (8-bit unsigned, SND_RATE Hz), the maps (level_ofs), the logo (LOGO_OFS) */\n")
         f.write("#define MUSIC_OFS 0x%04XUL   /* the tunes' streams (gen_music.py) */\n" % music_ofs)
         f.write("#define DATA_SPRITES 0\n#define DATA_SIZE 0x%04XUL\n#define LOGO_OFS 0x%04XUL   /* (in the art: GFX_LIN) */\n" % (len(data), logo_at))

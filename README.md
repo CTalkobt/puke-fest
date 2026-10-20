@@ -21,14 +21,14 @@ Needs the M65Compiler tree next to this one (`../m65compiler`, or
 xemu (`xemu-xmega65`) to run it.
 
 ```sh
-make            # build/pfest.d81: PFEST, PFEST.OV1, PFGFX1-3
+make            # build/pukefest.d81: PUKEFEST, PUKEFEST.OV1, PUKEGFX1-3
 make run        # run it in xemu from the disk image
 make demo       # the machine plays
 make test       # the nausea rules and the sprite multiplexer, on the host
 make wav        # the samples as WAV files in build/wav
 ```
 
-On a MEGA65, copy `build/pfest.d81` to the SD card, mount it and run PFEST.
+On a MEGA65, copy `build/pukefest.d81` to the SD card, mount it and run PUKEFEST.
 
 ## Controls
 

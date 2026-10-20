@@ -2,7 +2,7 @@
 #pragma once
 
 /* load.s45: the art from disk (1 if it is all there); text through the KERNAL */
-unsigned char gfx_load(void);                /* files gfx_first .. gfx_last - 1 (0-2: PFGFX1-3) */
+unsigned char gfx_load(void);                /* files gfx_first .. gfx_last - 1 (0-2: PUKEGFX1-3) */
 extern unsigned char gfx_first, gfx_last;
 extern const char *k_text;                 /* PETSCII, ending in 0 */
 void k_print(void);

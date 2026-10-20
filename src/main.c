@@ -1,10 +1,10 @@
-/* pfest — keep your lunch down at the county fair (MEGA65, cc45)
+/* Puke Fest — keep your lunch down at the county fair (MEGA65, cc45)
  *
  * Seven screens of the fair, each harder (and harder again every round):
  * tickets and the exit gate, the player's nausea, pukes and puddles, the
  * crowd, the cotton-candy kid, the Hugging Aunt, corn dog stands, teacups,
  * fireworks; mints, ginger ale and benches; lives, high scores on the disk.
- * 80 x 50 (640 x 400); the art and data load from disk (PFGFX1-3) at the start.
+ * 80 x 50 (640 x 400); the art and data load from disk (PUKEGFX1-3) at the start.
  *
  * Joystick in either port, W A S D or the cursor keys; FIRE / SPACE starts;
  * RUN/STOP quits to BASIC.
