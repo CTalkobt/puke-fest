@@ -1,0 +1,75 @@
+; Text pages: tools/gen_assets.py puts them in the data (bank 1); the game
+; draws them (video_page). A page starts with [name]; each line is
+;     <row> <colour> <text>
+; centred on the 80 columns (lower case shows as capitals). Colours: white,
+; red, cyan, green, yellow, orange, lred, grey, lgreen.
+
+[rules]
+28 yellow collect every ticket, then leave through the gate.
+30 lgreen at -1 and -2 you get better by yourself.
+32 lred at -2 or below you puke, once a minute: it makes you feel
+34 lred better (+1), but walk away before the stench hits (-1).
+36 lgreen mints, ginger ale and benches help.
+38 orange the crowd pukes too. dodge the aunt's hugs, the corn dog
+40 orange fumes, the spinning teacups and the fireworks!
+
+[scores_title]
+28 yellow the strongest stomachs
+
+; The story: a chapter before each screen (the game adds "chapter n" and
+; the screen's name above, "press fire" below). Rows 24 on.
+
+[story1]
+24 white you had the triple chili dog for lunch. then the deep-fried
+26 white butter. then your friends dragged you to the county fair.
+28 white your stomach is already making noises.
+31 yellow get across the parking lot: grab every ticket to open the gate.
+33 lred at -2 nausea you will puke - and walk away from it, fast:
+35 lred the stench hits everyone within 3 squares two seconds later.
+
+[story2]
+24 white the midway! ring toss, balloon darts, striped tents...
+26 white and aunt hilda. she has not seen you since you were six.
+28 white she is going to hug you. a lot.
+31 yellow paper bags lie about: pick one up and it catches the next
+33 yellow puke near you. when it is full, fire throws it (8 squares).
+35 lred outrun the aunt: a hug costs 2 and leaves you dizzy.
+
+[story3]
+24 white the food court. everything is on a stick and everything
+26 white is fried. the smell of corn dogs hangs in the air.
+31 yellow when a stand's stink cloud goes up you have one second:
+33 yellow get two squares away before it puffs.
+35 lred the kid with the candy floss is already turning green.
+
+[story4]
+24 white the teacups go round and round and round...
+26 white and so do the people who just got off them.
+31 yellow when a cup starts to whirl, step off the squares next to it.
+33 lred don't get boxed in on the ride.
+
+[story5]
+24 white the funhouse. mirrors everywhere, a floor that won't sit
+26 white still, and a hundred of you looking slightly green.
+31 yellow it is a maze: find your way round, mind the dead ends.
+33 lred the aunt knows the way. she always knows the way.
+
+[story6]
+24 white a nice calm boat ride. on a full stomach. on the water.
+26 white bobbing up and down. up and down. up and...
+31 yellow the plank bridges are narrow: nowhere to dodge a puke,
+33 yellow so wait for the crowd to pass.
+35 lred and don't slip in a puddle on a bridge.
+
+[story7]
+24 white night falls. the grand finale: fireworks!
+26 white everyone at the fair is here, and so is everything they ate.
+31 yellow the launch tubes fizz for a second before they go bang:
+33 yellow keep two squares away.
+35 lred last screen. hold it together!
+
+[win]
+24 white you made it through puke fest!
+26 white your friends want to go round again.
+28 white you don't. you go anyway.
+31 yellow bonus 5000 - and now it gets worse.

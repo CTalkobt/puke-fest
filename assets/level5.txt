@@ -1,0 +1,14 @@
+; name: the funhouse
+; A mirror maze (H) on a checkered floor (%).
+HHHHHHHHHHGGHHHHHHHH
+H%T%%%%%%%%%%%%%%T%H
+H%HHHH%HHHH%HHHHH%%H
+H%%%%H%%%c%%T%%%H%%H
+HHH%%H%HHHHHH%%%H%MH
+H%%%%%%B%a%%%%%%%%%H
+H%HHHHH%HHH%HHHHH%%H
+H%T%%%H%%%c%%H%%k%%H
+H%%%H%H%HHHH%H%HHHHH
+H%c%%%H%%%%%%H%%T%%H
+H%%%@%%%%%A%%%%%%%%H
+HHHHHHHHHHHHHHHHHHHH

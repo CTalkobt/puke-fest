@@ -1,0 +1,15 @@
+; name: the teacups
+; The ride: a purple floor of spinning teacups (each spins every so often:
+; get off the next squares). U is a teacup, o the ride's floor.
+##########GG########
+#..T.....==.....T..#
+#...ooooooooooo....#
+#...oUoooUoooUo..c.#
+#.b.oocooooocoo....#
+#...oUoooUoooUo.M..#
+#.T.ooooooeoooo..k.#
+#...oUoooUoooUo....#
+#..c.ooooooooo..T..#
+#.......A.....a..B.#
+#....@.......T..*..#
+####################

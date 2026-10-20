@@ -1,0 +1,14 @@
+; The Food Court: corn dog stands along the paths; the aunt and the kid
+; name: the food court
+##########GG########
+#.T........=....M..#
+#.=====D===C====D=.#
+#.=..cB....=..c...T#
+#.=.YY..b..=..b....#
+#.D....*...=.....a.#
+#.=..c.....k.......#
+#.===C======D====..#
+#..T..RRR..=..RRR..#
+#..p..RRR..=..RRR.T#
+#....@.A...=.c..T..#
+####################

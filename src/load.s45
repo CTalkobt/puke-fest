@@ -1,0 +1,274 @@
+; load.s45 — loading the art and printing, straight through the KERNAL
+;
+; The art is three files, PFGFX1 (bank 4), PFGFX2 (bank 5) and PFGFX3
+; (bank 1), each starting with its load address in its bank; the KERNAL
+; loads them where they say
+; (SETBNK, SETNAM, SETLFS with secondary address 1, LOAD) from the drive the
+; program came from - as the overlay runtime does (lib/stdlib_asm/ovl.s45).
+; This saves the C library's file and print code (about 8 KB of bank 0).
+; ROM calls go through crt0's __rom_call, which keeps the program's base
+; page.
+
+.cpu _45gs02
+.segmentOrder code, data, bss
+
+.global _gfx_load
+.global _gfx_first
+.global _gfx_last
+.global _k_print
+.global _k_text
+.global _k_file
+.global _k_name
+.global _k_len
+.global _k_addr
+.global _k_end
+.extern ___cbm_target, __rom_call
+
+.data
+_k_text:  .word 0         ; k_print's text: PETSCII, ending in 0
+_k_name:  .word 0         ; k_file: the file's name (PETSCII),
+_k_len:   .byte 0         ;   its length,
+_k_addr:  .word 0         ;   where in bank 0,
+_k_end:   .word 0         ;   and (saving) one past the end
+SAVEPTR = $FB             ; SAVE's start address: in base page 0, the ROM's
+name:     .byte $50, $46, $47, $46, $58, $31   ; "PFGFX1"
+NAME_LEN = 6
+
+.data
+banks:    .byte 4, 5, 1   ; PFGFX1, 2, 3 (at $12000)
+_gfx_first: .byte 0       ; gfx_load: the files from gfx_first
+_gfx_last:  .byte 3       ;   up to (not including) gfx_last
+
+.bss
+file:     .res 1
+ptr:      .res 2
+
+.code
+
+; unsigned char gfx_load(void): files gfx_first .. gfx_last - 1; 1 when
+; they are all in
+proc _gfx_load
+    lda _gfx_first
+    sta file
+    clc
+    adc #$31
+    sta name + NAME_LEN - 1
+@file:
+    lda #$6B              ; SETBNK: A = the data's bank, X = the name's
+    sta ___cbm_target
+    lda #$FF
+    sta ___cbm_target+1
+    ldx file
+    lda banks,x
+    ldx #0
+    jsr __rom_call
+    lda #$BD              ; SETNAM: A = length, X/Y = the name
+    sta ___cbm_target
+    lda #NAME_LEN
+    ldx #<name
+    ldy #>name
+    jsr __rom_call
+    lda #$BA              ; SETLFS 0, the program's drive (8 if none), 1
+    sta ___cbm_target
+    ldx $00BA
+    cpx #8
+    bcs @dev
+    ldx #8
+@dev:
+    lda #0
+    ldy #1
+    jsr __rom_call
+    lda #$D5              ; LOAD to the file's own address
+    sta ___cbm_target
+    lda #0
+    ldx #0
+    ldy #0
+    jsr __rom_call
+    bcs @fail
+    inc name + NAME_LEN - 1
+    inc file
+    lda file
+    cmp _gfx_last
+    bne @file
+    lda #1
+    ldx #0
+    rts
+@fail:
+    lda #0
+    ldx #0
+    rts
+endproc
+
+; void k_print(void): k_text through CHROUT
+proc _k_print
+    lda _k_text
+    sta ptr
+    lda _k_text+1
+    sta ptr+1
+@next:
+    lda ptr
+    sta @get+1
+    lda ptr+1
+    sta @get+2
+@get:
+    lda $FFFF             ; (the address is put in above)
+    beq @end
+    pha
+    lda #$D2
+    sta ___cbm_target
+    lda #$FF
+    sta ___cbm_target+1
+    pla
+    jsr __rom_call
+    inc ptr
+    bne @next
+    inc ptr+1
+    bra @next
+@end:
+    rts
+endproc
+
+; unsigned char k_file(unsigned char save): load (0) the file k_name to
+; k_addr in bank 0, or save (1) k_addr up to k_end there; 1 if it went
+; well. (The file's own load address is not used: k_addr is.)
+proc _k_file
+    pha
+    lda #$6B              ; SETBNK 0, 0
+    sta ___cbm_target
+    lda #$FF
+    sta ___cbm_target+1
+    lda #0
+    ldx #0
+    jsr __rom_call
+    lda #$BD              ; SETNAM
+    sta ___cbm_target
+    lda _k_len
+    ldx _k_name
+    ldy _k_name+1
+    jsr __rom_call
+    lda #$BA              ; SETLFS 1, the program's drive, 0: to k_addr
+    sta ___cbm_target
+    ldx $00BA
+    cpx #8
+    bcs @dev
+    ldx #8
+@dev:
+    lda #1
+    ldy #0
+    jsr __rom_call
+    pla
+    bne @save
+    lda #$D5              ; LOAD to X/Y
+    sta ___cbm_target
+    lda #0
+    ldx _k_addr
+    ldy _k_addr+1
+    jsr __rom_call
+    bra @done
+@save:
+    tba                   ; SAVE reads (SAVEPTR) in the ROM's base page, 0;
+    pha                   ; ours is another (crt0's __zp_page)
+    lda #0
+    tab
+    lda _k_addr
+    sta SAVEPTR
+    lda _k_addr+1
+    sta SAVEPTR+1
+    pla
+    tab
+    lda #$D8
+    sta ___cbm_target
+    lda #SAVEPTR
+    ldx _k_end
+    ldy _k_end+1
+    jsr __rom_call
+@done:
+    lda #0
+    ldx #0
+    bcs @out
+    lda #1
+@out:
+    rts
+endproc
+
+; Samples: audio DMA channel snd_ch plays snd_len bytes (8-bit unsigned)
+; from chip RAM at snd_addr (24 bits), at rate register value snd_rate (24
+; bits: Hz * 2^24 / 40.5 MHz), volume snd_vol on both sides, once. Channel
+; ch's registers are at $D720 + ch * 16: 0 control, 1-3 loop start, 4-6
+; rate, 7-8 end (low 16 bits), 9 volume, A-C the next sample; $D71C + ch
+; the volume on the other side; $D711 bit 7 audio DMA on.
+.global _snd_on
+.global _snd_off
+.global _snd_play
+.global _snd_ch
+.global _snd_addr
+.global _snd_len
+.global _snd_rate
+.global _snd_vol
+
+.data
+_snd_ch:   .byte 0
+_snd_addr: .byte 0, 0, 0
+_snd_len:  .word 0
+_snd_rate: .byte 0, 0, 0
+_snd_vol:  .byte 0
+
+.code
+proc _snd_on
+    lda #0
+    sta $D720
+    sta $D730
+    sta $D740
+    sta $D750
+    lda #$80
+    sta $D711
+    rts
+endproc
+
+proc _snd_off
+    lda #0
+    sta $D720
+    sta $D730
+    sta $D740
+    sta $D750
+    sta $D711
+    rts
+endproc
+
+proc _snd_play
+    lda _snd_ch
+    tax
+    asl
+    asl
+    asl
+    asl
+    tay                   ; the channel's registers: $D720 + Y
+    lda #0
+    sta $D720,y           ; stopped while it is set up
+    lda _snd_addr
+    sta $D721,y
+    sta $D72A,y
+    clc
+    adc _snd_len
+    sta $D727,y           ; the end: the address + the length
+    lda _snd_addr+1
+    sta $D722,y
+    sta $D72B,y
+    adc _snd_len+1
+    sta $D728,y
+    lda _snd_addr+2
+    sta $D723,y
+    sta $D72C,y
+    lda _snd_rate
+    sta $D724,y
+    lda _snd_rate+1
+    sta $D725,y
+    lda _snd_rate+2
+    sta $D726,y
+    lda _snd_vol
+    sta $D729,y
+    sta $D71C,x           ; the same on the other side: in the middle
+    lda #$A2              ; on, unsigned, 8 bits
+    sta $D720,y
+    rts
+endproc

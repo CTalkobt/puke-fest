@@ -1,0 +1,14 @@
+; name: the parking lot
+; The first screen: rows of parked cars; a few people, no aunt.
+##########GG########
+#T___|______|____M_#
+#_XX_|_xX___|_Xx_L_#
+#____c_______c_____#
+#_xX_|_XX_T_|_xX___#
+#__L________L______#
+#_XX_|_xx___|_XX_c_#
+#_T__|______|____T_#
+#_xX_|_Xx_A_|_XX___#
+#___c______b_______#
+#____@_____T_______#
+####################

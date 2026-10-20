@@ -1,0 +1,252 @@
+; mux.s45 — the sprite multiplexer's raster interrupt
+;
+; Characters are 2 sprites side by side, so the 8 sprites are 4 pairs. A
+; display list (built by mux.c) says, for each character shown this frame,
+; which pair shows it, where, which images, and the raster line (VIC-II
+; numbering, 9 bits) at which the pair can be moved there: just after the
+; pair's previous character has ended, just before this one starts. Line 0
+; means at the top of the frame.
+;
+; There are two lists, entries 0-15 and 16-31 of each table: mux.c fills
+; the one not on display and sets mx_pending; the interrupt at the top of
+; the next frame (FRAME_LINE, in the border) switches to it, turns every
+; sprite off and works down the list: it moves the pairs whose line has
+; come, then sets the raster compare to the next entry's line and leaves.
+; After the last entry it waits for FRAME_LINE again.
+;
+; Entered through $0314 from the KERNAL's interrupt entry, which has
+; pushed A X Y Z and B and set B to 0; leaves the way the KERNAL's handler
+; does. It uses no base page: the interrupted C code keeps its own.
+
+.cpu _45gs02
+.segmentOrder code, data, bss
+
+FRAME_LINE = 16             ; above the first sprites (NTSC's start at about line 32)
+MXMAX = 16                ; entries in a list
+
+.global _mx_irq
+.global _mx_line_lo
+.global _mx_line_hi
+.global _mx_reg
+.global _mx_xl0
+.global _mx_xl1
+.global _mx_y
+.global _mx_mask
+.global _mx_x8
+.global _mx_x9
+.global _mx_y8
+.global _mx_y9
+.global _mx_p0l
+.global _mx_p0h
+.global _mx_p1l
+.global _mx_p1h
+.global _mx_n
+.global _mx_cur
+.global _mx_pending
+.global _mx_top
+.global _mx_done_lo
+.global _mx_done_hi
+
+.extern _spr_ptr
+
+.bss
+_mx_line_lo: .res 2 * MXMAX   ; when: the raster line (0: the top of the frame)
+_mx_line_hi: .res 2 * MXMAX
+_mx_reg:     .res 2 * MXMAX   ; which pair: its number * 4 ($D000 + it: X of its first sprite)
+_mx_xl0:     .res 2 * MXMAX   ; X, low bytes: the left sprite
+_mx_xl1:     .res 2 * MXMAX   ;   the right one
+_mx_y:       .res 2 * MXMAX   ; Y, low byte
+_mx_mask:    .res 2 * MXMAX   ; the pair's bits in $D015 and the MSB registers
+_mx_x8:      .res 2 * MXMAX   ; within mask: the bits for $D010 (X bit 8)
+_mx_x9:      .res 2 * MXMAX   ;   $D05F (X bit 9)
+_mx_y8:      .res 2 * MXMAX   ;   $D077 (Y bit 8)
+_mx_y9:      .res 2 * MXMAX   ;   $D078 (Y bit 9)
+_mx_p0l:     .res 2 * MXMAX   ; the left sprite's image pointer
+_mx_p0h:     .res 2 * MXMAX
+_mx_p1l:     .res 2 * MXMAX   ; the right one's
+_mx_p1h:     .res 2 * MXMAX
+_mx_n:       .res 2           ; entries in list 0 and list 1
+_mx_cur:     .res 1           ; the list on display: 0 or MXMAX
+_mx_pending: .res 1           ; 1: the other list is ready
+_mx_top:     .res 1           ; 1: the next interrupt is the top of a frame
+_mx_done_lo: .res 2 * MXMAX   ; the line each entry's pair was moved at (for checking)
+_mx_done_hi: .res 2 * MXMAX
+idx:         .res 1           ; the next entry
+last:        .res 1           ; one past the list's last entry
+rlo:         .res 1           ; the raster line now
+rhi:         .res 1
+tlo:         .res 1
+thi:         .res 1
+notmask:     .res 1
+
+.code
+
+; the raster line now (9 bits) in rhi:rlo; read again if the low byte
+; wrapped while reading the high bit
+proc raster_now
+@again:
+    lda $D012
+    sta rlo
+    lda $D011
+    and #$80
+    sta rhi
+    lda $D012
+    cmp rlo
+    bcc @again
+    lda rhi
+    beq @lo
+    lda #1
+    sta rhi
+@lo:
+    rts
+endproc
+
+; move entry X's pair to it
+proc apply
+    ldy _mx_reg,x
+    lda _mx_xl0,x
+    sta $D000,y
+    lda _mx_xl1,x
+    sta $D002,y
+    lda _mx_y,x
+    sta $D001,y
+    sta $D003,y
+    lda _mx_p0l,x         ; the pair's two pointers: 4 bytes at the same offset
+    sta _spr_ptr,y
+    lda _mx_p0h,x
+    sta _spr_ptr+1,y
+    lda _mx_p1l,x
+    sta _spr_ptr+2,y
+    lda _mx_p1h,x
+    sta _spr_ptr+3,y
+    lda _mx_mask,x
+    eor #$FF
+    sta notmask
+    lda $D010
+    and notmask
+    ora _mx_x8,x
+    sta $D010
+    lda $D05F
+    and notmask
+    ora _mx_x9,x
+    sta $D05F
+    lda $D077
+    and notmask
+    ora _mx_y8,x
+    sta $D077
+    lda $D078
+    and notmask
+    ora _mx_y9,x
+    sta $D078
+    lda $D015
+    ora _mx_mask,x
+    sta $D015
+    rts
+endproc
+
+proc _mx_irq
+    lda $D019
+    and #$01
+    bne @raster
+    lda $D019             ; not a raster interrupt: acknowledge, leave
+    sta $D019
+    bra @leave
+@raster:
+    sta $D019             ; acknowledge it
+    lda _mx_top
+    beq @work
+
+    ; the top of a frame: the new list if there is one, every sprite off
+    lda #0
+    sta _mx_top
+    sta $D015
+    lda _mx_pending
+    beq @same
+    lda _mx_cur
+    eor #MXMAX
+    sta _mx_cur
+    lda #0
+    sta _mx_pending
+@same:
+    ldx #0
+    lda _mx_cur
+    beq @n
+    inx
+@n:
+    lda _mx_n,x
+    clc
+    adc _mx_cur
+    sta last
+    lda _mx_cur
+    sta idx
+
+@work:
+    ldx idx
+    cpx last
+    beq @done
+    ; due within two lines (or late)? then wait for its line and move the
+    ; pair; else ask for an interrupt at its line
+    jsr raster_now
+    lda rlo
+    clc
+    adc #2
+    sta tlo
+    lda rhi
+    adc #0
+    sta thi
+    lda _mx_line_hi,x
+    cmp thi
+    bcc @due
+    bne @later
+    lda _mx_line_lo,x
+    cmp tlo
+    bcc @due
+    beq @due
+@later:
+    lda _mx_line_lo,x
+    sta $D012
+    lda _mx_line_hi,x
+    ror a                 ; bit 0 -> carry -> bit 7 of $D011
+    lda $D011
+    and #$7F
+    bcc @hi0
+    ora #$80
+@hi0:
+    sta $D011
+    bra @leave
+@due:
+    jsr raster_now
+    lda rhi
+    cmp _mx_line_hi,x
+    bcc @due
+    bne @go
+    lda rlo
+    cmp _mx_line_lo,x
+    bcc @due
+@go:
+    jsr apply
+    lda rlo
+    sta _mx_done_lo,x
+    lda rhi
+    sta _mx_done_hi,x
+    inc idx
+    bra @work
+
+@done:
+    lda #FRAME_LINE
+    sta $D012
+    lda $D011
+    and #$7F
+    sta $D011
+    lda #1
+    sta _mx_top
+
+@leave:
+    pla                   ; the KERNAL's pushes: B Z Y X A
+    tab
+    plz
+    ply
+    plx
+    pla
+    rti
+endproc

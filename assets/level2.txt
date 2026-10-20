@@ -1,0 +1,16 @@
+; The Midway: a character per square (tools/gen_assets.py TILE_CHARS), 20 x 12
+; name: the midway
+; c / C: someone in the crowd starts here (on grass / on the path),
+; a: the Hugging Aunt, k: the cotton-candy kid, p / P: a puddle, D: a corn dog stand, B: a paper bag
+##########GG########
+#..T...=====...Y...#
+#.RRRR.=..c=..RRR..#
+#.RRRR.=.b.=..RRR.T#
+#....c.=...=B..c...#
+#=========C========#
+#..*...=.M.=c.*....#
+#.YY...=...=...RRR.#
+#.T..c.=.A.=...RRR.#
+#..b...=...=..a.T..#
+#....@.=..c=..T..c.#
+####################
