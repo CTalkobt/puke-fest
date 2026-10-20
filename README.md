@@ -1,5 +1,7 @@
 # Puke Fest
 
+![The title screen](doc/title.png)
+
 Keep your lunch down at the county fair. An arcade game for the MEGA65 in
 80 x 50, written in C with the M65Compiler tool suite (cc45, ca45, ln45,
 disk45): <https://github.com/CTalkobt/M65Compiler>, <http://cc45.ctalkobt.net>.
