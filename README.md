@@ -1,8 +1,8 @@
 # Puke Fest
 
 Keep your lunch down at the county fair. An arcade game for the MEGA65 in
-80 x 50, written in C with the [M65Compiler](https://github.com/CTalkobt/M65Compiler)
-tool suite (cc45, ca45, ln45, disk45).
+80 x 50, written in C with the M65Compiler tool suite (cc45, ca45, ln45,
+disk45): <https://github.com/CTalkobt/M65Compiler>, <http://cc45.ctalkobt.net>.
 
 Seven screens of the fair - the Parking Lot, the Midway, the Food Court, the
 Teacups, the Funhouse, the Boat Ride and the Fireworks - each harder than
@@ -17,8 +17,9 @@ screen, high scores on the disk.
 ## Build and run
 
 Needs the M65Compiler tree next to this one (`../m65compiler`, or
-`make M65=<path>`), Python 3 (PIL for the art previews and PNG art), and
-xemu (`xemu-xmega65`) to run it.
+`make M65=<path>`) - get it from <https://github.com/CTalkobt/M65Compiler>
+(documentation: <http://cc45.ctalkobt.net>) - Python 3 (PIL for the art
+previews and PNG art), and xemu (`xemu-xmega65`) to run it.
 
 ```sh
 make            # build/pukefest.d81: PUKEFEST, PUKEFEST.OV1, PUKEGFX1-3
